@@ -5,6 +5,9 @@
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
+  "repository":{
+    "url":"https://github.com/somkumarav/flipdots"
+  },
   "exports": {
     ".": {
       "import": {
@@ -35,7 +38,7 @@
     "led",
     "pixel-art"
   ],
-  "author": "som",
+  "author": "somkumarav",
   "license": "MIT",
   "peerDependencies": {
     "react": ">=18.0.0"
