@@ -5,8 +5,8 @@
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
-  "repository":{
-    "url":"https://github.com/somkumarav/flipdots"
+  "repository": {
+    "url": "https://github.com/somkumarav/flipdots"
   },
   "exports": {
     ".": {
@@ -48,5 +48,8 @@
     "react": "^18.2.0",
     "tsup": "^8.0.0",
     "typescript": "^5.3.0"
+  },
+  "dependencies": {
+    "npm": "^11.7.0"
   }
 }
