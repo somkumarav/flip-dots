@@ -1,13 +1,33 @@
-import React from "react";
-import { type DotMatrix, type GridConfig } from "../types";
+import React, { useMemo } from "react";
+import { type DotMatrix, type FontSet, type GridConfig } from "../types";
 import { FlipDot } from "./flip-dot";
 import { MatrixUtils } from "../utils/matrix-operations";
+import { TextRenderer } from "../utils/text-renderer";
+import { FONT_5x7 } from "../fonts/terminal-5x7";
 
-export interface FlipDotGridProps extends GridConfig {
-  matrix: DotMatrix;
-}
+export type FlipDotGridProps = GridConfig &
+  (
+    | {
+        matrix: DotMatrix;
+        text?: never;
+        font?: never;
+        letterSpacing?: never;
+        wordSpacing?: never;
+      }
+    | {
+        text: string;
+        matrix?: never;
+        font?: FontSet;
+        letterSpacing?: number;
+        wordSpacing?: number;
+      }
+  );
 
 export const FlipDotGrid: React.FC<FlipDotGridProps> = ({
+  text,
+  font = FONT_5x7,
+  letterSpacing,
+  wordSpacing,
   matrix,
   padding,
   gap = 1,
@@ -18,14 +38,35 @@ export const FlipDotGrid: React.FC<FlipDotGridProps> = ({
   className = "",
   secondIndicator = false,
 }) => {
-  // Apply padding if specified
-  const paddedMatrix = padding
-    ? MatrixUtils.addPadding(matrix, padding, secondIndicator)
-    : matrix;
+  const displayMatrix = useMemo(() => {
+    if (text !== undefined) {
+      const renderer = new TextRenderer({
+        font,
+        letterSpacing,
+        wordSpacing,
+      });
 
-  if (paddedMatrix.length === 0) return null;
+      if (padding) {
+        return renderer.renderWithPadding(text, padding, secondIndicator);
+      }
+      return renderer.render(text);
+    }
 
-  const cols = paddedMatrix[0]?.length ?? 0;
+    if (matrix) {
+      return padding
+        ? MatrixUtils.addPadding(matrix, padding, secondIndicator)
+        : matrix;
+    }
+
+    return [];
+  }, [text, matrix, font, letterSpacing, wordSpacing, padding]);
+
+  if (displayMatrix.length === 0) {
+    console.warn("FlipDotGrid: No matrix or text provided");
+    return null;
+  }
+
+  const cols = displayMatrix[0]?.length ?? 0;
 
   const gridStyle: React.CSSProperties = {
     display: "grid",
@@ -36,7 +77,7 @@ export const FlipDotGrid: React.FC<FlipDotGridProps> = ({
 
   return (
     <div style={gridStyle} className={className}>
-      {paddedMatrix.map((row, rowIndex) =>
+      {displayMatrix.map((row, rowIndex) =>
         row.map((isActive, colIndex) => (
           <FlipDot
             key={`${rowIndex}-${colIndex}`}
@@ -45,7 +86,6 @@ export const FlipDotGrid: React.FC<FlipDotGridProps> = ({
             activeColor={activeColor}
             inactiveColor={inactiveColor}
             animationDuration={animationDuration}
-            secondIndicator={secondIndicator}
           />
         ))
       )}
